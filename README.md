@@ -1,4 +1,4 @@
-# AetherRoyale – Redis (Kubernetes)
+# AetherRoyale – Redis / RedisInsight (Kubernetes)
 
 Déploiement de Redis pour les environnements Kubernetes du projet **Aether Royale**.
 
