@@ -3,7 +3,7 @@
 Déploiement de Redis pour les environnements Kubernetes du projet **Aether Royale**.
 
 * Staging : Redis standalone (simple, léger, non ha)
-* Production : Redis configurable selon besoin (standalone ou HA)
+* Production : Redis HA
 * Monitoring : RedisInsight (interface web)
 
 <br /><br />
