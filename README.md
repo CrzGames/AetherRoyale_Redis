@@ -1,32 +1,10 @@
 # AetherRoyale – Redis (Kubernetes)
 
-## Staging
-Déploiement d’un **Redis standalone** pour l’environnement **staging** du projet Aether Royale.
+Déploiement de Redis pour les environnements Kubernetes du projet **Aether Royale**.
 
-* Mode : **standalone** (pas de HA)
-* Stockage : **PVC 5 Gi** (cluster staging)
-
-## Production
-
-
-<br />
-
-## 📦 Structure du dépôt
-
-```
-AetherRoyale_Redis/
-  k8s/
-    staging/
-      values.yaml
-```
-
-<br />
-
-## 🧰 Prérequis
-
-* Un cluster Kubernetes fonctionnel
-* Helm installé
-* Accès `kubectl` configuré sur le cluster
+* Staging : Redis standalone (simple, léger, non ha)
+* Production : Redis configurable selon besoin (standalone ou HA)
+* Monitoring : RedisInsight (interface web)
 
 <br /><br />
 
@@ -34,21 +12,54 @@ AetherRoyale_Redis/
 
 <br /><br />
 
-## ⚙️ Configuration
+# 📦 Structure du dépôt
 
-Éditer :
+```
+AetherRoyale_Redis/
+  k8s/
+    staging/
+      values.yaml
+      redisinsight.yaml
+    production/
+      values.yaml
+      redisinsight.yaml
+```
+
+Chaque dossier représente un environnement indépendant.
+
+<br /><br />
+
+---
+
+<br /><br />
+
+# 🧰 Prérequis
+
+* Cluster Kubernetes fonctionnel
+* Helm installé
+* Accès kubectl configuré
+
+<br /><br />
+
+---
+
+<br /><br />
+
+# ⚙️ Configuration
+
+Éditer le fichier correspondant à l’environnement :
 
 ```
 k8s/staging/values.yaml
 ```
 
+ou
+
+```
+k8s/production/values.yaml
+```
+
 Remplacer :
-
-```
-REPLACE_ME
-```
-
-par un mot de passe Redis fort :
 
 ```yaml
 auth:
@@ -56,22 +67,24 @@ auth:
   password: "REPLACE_ME"
 ```
 
+par un mot de passe Redis fort.
+
 <br /><br />
 
 ---
 
 <br /><br />
 
-## 🚀 Installation (staging)
+# 🚀 Installation
 
-Ajouter le repo Helm Bitnami :
+## Ajouter le repo Helm Bitnami
 
 ```bash
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 ```
 
-Déployer Redis en créant automatiquement le namespace :
+## 🧪 Installation – Staging
 
 ```bash
 helm upgrade --install staging-redis bitnami/redis \
@@ -80,18 +93,43 @@ helm upgrade --install staging-redis bitnami/redis \
   -f k8s/staging/values.yaml
 ```
 
+## 🏭 Installation – Production
+
+```bash
+helm upgrade --install prod-redis bitnami/redis \
+  -n prod-redis \
+  --create-namespace \
+  -f k8s/production/values.yaml
+```
+
 <br /><br />
 
 ---
 
 <br /><br />
 
-## 📡 Accès Redis depuis le cluster
+# 📡 Accès Redis depuis le cluster
 
-Host interne Kubernetes :
+## Staging
+
+Host :
 
 ```
 staging-redis-master.staging-redis.svc.cluster.local
+```
+
+Port :
+
+```
+6379
+```
+
+## Production
+
+Host :
+
+```
+prod-redis-master.prod-redis.svc.cluster.local
 ```
 
 Port :
@@ -106,12 +144,82 @@ Port :
 
 <br /><br />
 
-## 🔐 Variables d’environnement côté backend
+# 🔐 Variables d’environnement (backend)
 
-Exemple :
+## Staging
 
 ```
 REDIS_HOST=staging-redis-master.staging-redis.svc.cluster.local
 REDIS_PORT=6379
 REDIS_PASSWORD=REPLACE_ME
 ```
+
+## Production
+
+```
+REDIS_HOST=prod-redis-master.prod-redis.svc.cluster.local
+REDIS_PORT=6379
+REDIS_PASSWORD=REPLACE_ME
+```
+
+<br /><br />
+
+---
+
+<br /><br />
+
+# 🧠 RedisInsight (Interface Web)
+
+RedisInsight permet de :
+
+* Visualiser les clés
+* Voir la RAM utilisée
+* Tester des commandes
+* Debug le cache
+
+## Installation – Staging
+
+```bash
+kubectl apply -f k8s/staging/redisinsight.yaml
+```
+
+## Installation – Production
+
+```bash
+kubectl apply -f k8s/production/redisinsight.yaml
+```
+
+<br /><br />
+
+---
+
+<br /><br />
+
+## Accès
+
+RedisInsight est accessible directement via l’Ingress privé :
+
+```
+https://redisinsight.staging.aetherroyale.crzgames.com/
+```
+
+Il suffit d’ouvrir cette URL dans le navigateur pour consulter l’interface.
+
+<br /><br />
+
+---
+
+<br /><br />
+
+# 🧱 Notes Architecture
+
+### Staging
+
+* Redis standalone
+* 1 PVC de 5Go
+* Pas de haute dispo
+* 1 seule pod
+
+### Production
+
+TODO
